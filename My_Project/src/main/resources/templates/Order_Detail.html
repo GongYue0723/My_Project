@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>抢购订单详情页</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading" style="text-align: center">抢购订单详情页</div>
+<table>
+    <tr>
+        <td>商品名称</td>
+        <td th:text="${stock.getName()}"></td>
+    </tr>
+    <tr>
+        <td>商品图片</td>
+        <td><img th:src="${stock.getGoodsImg()}" width="200" height="200"></td>
+    </tr>
+    <tr>
+        <td>订单价格</td>
+        <td th:text="${stock.getSeckillPrice()}" style="color: red"></td>
+    </tr>
+    <tr>
+        <td>收货人</td>
+        <td th:text="${username}" style="font-family: 'Arial'"></td>
+    </tr>
+    <tr>
+        <td>收获地址</td>
+        <td th:text="广东省广州市海珠区鼎新路128号唯品会总部大厦安越楼21层"></td>
+    </tr>
+<!--    <tr>-->
+<!--        <td>秒杀开始时间</td>-->
+<!--        <td th:text="${#dates.format(stock.getStartDate(), 'yyyy/MM/dd HH:mm:ss')}"></td>-->
+<!--        <input type="hidden" id="startTime" th:value="${#dates.format(stock.getStartDate(), 'yyyy/MM/dd HH:mm:ss')}"/>-->
+<!--        <input type="hidden" id="endTime" th:value="${#dates.format(stock.getEndDate(), 'yyyy/MM/dd HH:mm:ss')}"/>-->
+<!--    </tr>-->
+    <tr>
+        <td class="timebox">
+            剩余支付时间还剩：
+            <span id="Os">60</span>
+            s
+        </td>
+        <td>
+            <form id="seckillForm">
+                <button class="btn btn-primary btn-block" type="button" id="payButton" value="value">立即支付</button>
+                <input type="hidden" name="orderUser" id="orderUser" th:value="${username}">
+                <input type="hidden" name="stockId" id="stockId" th:value="${id}">
+<!--                <input type="hidden" name="stockName" id="stockName" th:value="${stock.getName()}">-->
+            </form>
+        </td>
+    </tr>
+</table>
+</div>
+</body>
+<script>
+    var Os=document.getElementById("Os");
+    var num=60;
+    setInterval(function () {
+        num--;
+        Os.innerText=num;
+        if(num==0){
+            layer.msg("超时未支付，请重新抢购");
+            window.history.back();
+        }
+    },1000)
+
+    $(document).ready(function (){
+        // var id = $("#stockId").val();
+        $("#payButton").click(function (){
+            $.ajax({
+                url: "/payOrder",
+                type: "post",
+                data: $("#seckillForm").serialize(),
+                cache: false,
+                success: function (data){
+                    if (data.result == "success"){
+                        layer.confirm("支付成功，返回首页", {btn:["确认", "取消"]}, function (){
+                            window.history.go(-2);
+                        },
+                            // 取消的回调
+                            function () {
+                                layer.closeAll();
+                            }
+                        );
+                        //支付成功关闭按钮
+                        $("#payButton").attr("disabled", true);
+                        //返回前两页
+                    }
+                },
+                error: function () {
+                    layer.msg("客户端请求有误");
+                }
+            })
+        })
+    })
+</script>
+</html>

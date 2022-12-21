@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品列表</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <script>
+        // $(document).ready(function () {
+        //     function parseUrl() {
+        //         var url = location.href;
+        //         encodeURI(url);
+        //         var i = url.indexOf('?');
+        //         if (i == -1) return;
+        //         var querystr = url.substr(i + 1);
+        //         var arr1 = querystr.split('&');
+        //         var arr2 = new Object();
+        //         for (i in arr1) {
+        //             var ta = arr1[i].split('=');
+        //             arr2[ta[0]] = ta[1];
+        //         }
+        //         return arr2;
+        //     }
+        //
+        //     var v = parseUrl();//解析所有参数
+        //     // alert(v['name']);//就是你要的结果
+        //     var name = decodeURI(v['name']);
+        //     document.getElementById('search').innerHTML = '欢迎您！' + name;
+        //
+        //     // $("#reset").click(function (){
+        //     //     var url = 'update&password.html?name=' + name;
+        //     //     window.location.href = url;
+        //     // });
+        // });
+        /**
+         * 前端接受Model动态传值的
+         */
+        // $(document).ready(function () {
+            //单独写法
+            // var result = [[${username}]];
+            // document.getElementById('username').innerHTML='欢迎您！' + result;
+        // });
+        // var zongshu = 123456;
+        // document.getElementById('username').innerHTML = zongshu;
+
+    </script>
+    <style>
+        #reset{
+            text-align: center;
+            color: darkblue;
+            background-color: rgb(225,225,0,60%);
+        }
+    </style>
+</head>
+<body>
+<!--<h1 id="search" style="color: skyblue; background-color: rgb(225,225,225,60%); text-align: center; margin: 250px 150px"></h1>-->
+<!--<p  id="reset">修改密码</p>-->
+<div class="panel panel-default">
+    <div class="panel-heading" id="reset">商品列表</div>
+    <div id="username" style="float: left; color: skyblue; background-color: rgb(225,225,225,60%)"></div>
+    <div style="float: right"><a href="#" id="jump">修改密码</a></div>
+<!--    <div><a href="#" id="jump">修改密码</a></div>-->
+    <br>
+    <table>
+        <tr>
+            <td>商品名称</td>
+            <td>商品图片</td>
+            <td>商品价格</td>
+            <td>库存数量</td>
+            <td>商品详情</td>
+        </tr>
+        <!-- 使用EL表达式获取controller设置的传参 -->
+            <tr th:each="list:${stockList}">
+                <td th:text="${list.name}"></td>
+                <td><img th:src="@{${list.goodsImg}}" height="150" width="150"/></td>
+                <td th:text="${list.price}"></td>
+                <td th:text="${list.stock}"></td>
+    <!--            <td th:text="${list.remarks}"></td>-->
+    <!--            将商品id和用户名返回给controller层-->
+<!--                🦔REST风格传参Controller层需要需要使用@PathVariable-->
+                <td><a th:href="'/good_detail/' + ${list.getId()} + '/' + ${username}">详情</a></td>
+            </tr>
+    </table>
+</div>
+<script>
+    $(document).ready(function (){
+
+        // var result = decodeURI([[${username}]]);
+        document.getElementById('username').innerHTML='欢迎您！' + '[[${username}]]';
+
+        var url = "/update&password.html?name=" + '[[${username}]]';
+        $("#jump").attr("href", url);
+
+    })
+</script>
+</body>
+</html>

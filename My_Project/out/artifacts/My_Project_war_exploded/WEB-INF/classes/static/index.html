@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>龚越的商城</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                //点击id为hide的按钮将运行其中的function
+                    $("#hide").click(function(){
+                        //以slow的速度隐藏p元素中的内容
+                        //fadeIn/Out渐渐淡出和淡入(单位毫秒)
+                        //fadeToggle集合fadeIn和fadeOut的功能(一个按键完成)
+                        //fadeTo可调节不透明度
+                        $(".ex").hide("slow", function(){
+                            //callback参数在hide直行往后再执行的函数
+                            alert("内容已隐藏");
+                        });
+                        // $("p").fadeToggle(3000);
+                        // $("p").fadeOut(4000);
+                        // $("p").fadeTo("slow",0.3);
+                    });
+                    $("#show").click(function(){
+                        //
+                        $(".ex").show("slow", function (){
+                            alert("内容已显示");
+                        });
+                        // $("p").fadeIn(4000);
+                    })
+                    // $(".click").click(function (){
+                    //     $(".slideDown").slideDown("slow");
+                    // })
+                    //
+                    $(".click").click(function(){
+                        $(".slideDown").slideToggle("fast");
+                    })
+                    $(".click").click(function(){
+                        $(".content").animate({left:'100px'}, "slow");
+                        $(".content").animate({fontSize:"3em"}, "slow");
+                    })
+                    $("#Gilgamesh").click(function (){
+                        //调用JQuery AJAX 引用外部连接或http请求
+                        //AJAX 是与服务器交换数据的艺术，它在不重载全部页面的情况下，实现了对部分网页的更新。
+                        // responseTxt - 包含调用成功时的结果内容
+                        // statusTXT - 包含调用的状态
+                        // xhr - 包含 XMLHttpRequest 对象
+                        $("#paragraph").load('text.html', function (responseTxt, statusText, xhr){
+                            if (responseTxt == "success")
+                                alert("登陆成功");
+                            if(statusText == "error")
+                                alert("Error:" +xhr.status + ":" + xhr.statusText )
+                        });
+                    })
+
+                });
+        </script>
+    <style type="text/css">
+        div.main{
+            background-color: crimson;
+            text-align: center
+        }
+        .slideDown, div.click{
+            background-color: aquamarine;
+            margin: 0px;
+            padding: 20px;
+            text-align: center;
+        }
+        .slideDown{
+            display: none;
+            border: black solid 1px;
+            position: relative;
+        }
+    </style>
+    </head>
+<body>
+<div class="main">
+<p class="ex" align="center">我是龚越</p>
+<button id="hide" type="button">隐藏</button>
+    <button id="show" type="button">显示</button>
+</div>
+<div class="click">
+    <p>你想知道的都在这里</p>
+</div>
+    <div class="slideDown" >
+        <p class="content">你又想知道些什么呢？</p>
+    </div>
+<p id="paragraph">吸血怎么说，吸血</p>
+<button id="Gilgamesh">点击此处，调用jQuery AJAX改变文本内容</button>
+</body>
+</html>

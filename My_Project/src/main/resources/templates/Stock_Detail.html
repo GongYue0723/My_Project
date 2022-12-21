@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情页</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <style>
+        .timebox {
+            border: 1px pink solid;
+            width: 300px;
+            height: 50px;
+            text-align: center;
+            margin: 0 auto;
+            font-size: 20px;
+            line-height: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="panel panel-default">
+    <div class="panel-heading" style="text-align: center">商品详情</div>
+<table>
+    <tr>
+        <td>商品名称</td>
+        <td th:text="${stock.getName()}"></td>
+    </tr>
+    <tr>
+        <td>商品图片</td>
+        <td><img th:src="${stock.getGoodsImg()}" width="200" height="200"></td>
+    </tr>
+    <tr>
+        <td>秒杀价格</td>
+        <td th:text="${stock.getSeckillPrice()}" style="color: red"></td>
+    </tr>
+    <tr>
+        <td>商品简介</td>
+        <td th:text="${stock.getRemarks()}" style="font-family: 'Arial'"></td>
+    </tr>
+    <tr>
+        <td>秒杀开始时间</td>
+        <td th:text="${#dates.format(stock.getStartDate(), 'yyyy/MM/dd HH:mm:ss')}"></td>
+        <input type="hidden" id="startTime" th:value="${#dates.format(stock.getStartDate(), 'yyyy/MM/dd HH:mm:ss')}"/>
+        <input type="hidden" id="endTime" th:value="${#dates.format(stock.getEndDate(), 'yyyy/MM/dd HH:mm:ss')}"/>
+    </tr>
+    <tr>
+        <td class="timebox">
+            距离抢购时间还剩：
+            <span>-- ：-- ：--</span>
+        </td>
+        <td>
+            <form id="seckillForm">
+                <button class="btn btn-primary btn-block" disabled="disabled" type="button" id="seckillButton" value="value">立即抢购</button>
+                <input type="hidden" name="orderUser" id="orderUser" th:value="${username}">
+                <input type="hidden" name="stockName" id="stockName" th:value="${stock.getName()}">
+                <input type="hidden" name="stockId" id="stockId" th:value="${stock.getId()}">
+            </form>
+        </td>
+    </tr>
+</table>
+</div>
+</body>
+
+<script>
+    /**
+     * querySelector将会选择对应id或class中的第一个元素
+     * @type {Element}
+     */
+    let timebox = document.querySelector(".timebox"),
+        timespan = document.querySelector("span");
+    function addZero(val) {
+        return val < 10 ? '0' + val : val;
+    }
+    /*
+        computeTime:接收服务器字符串打印离抢购的时间
+        @params:[String timeStr]服务器返回的时间字符串
+        @return：
+    */
+    let computeTime = function (timeStr) {
+        if (typeof timeStr === "undefined") {
+            //此处不能用let声明变量，不然外部无法访问；
+            var nowTime = new Date(); //当前客户端时间，后期需要换成服务端时间
+            var startTime = new Date($("#startTime").val());
+            var endTime = new Date($("#endTime").val());
+        } else {
+            //字符串的处理，需要的同学可以参考下我的随笔
+            console.log(1);
+        }
+        // let endTime = new Date()
+            diffTime = startTime - nowTime;
+        if (diffTime >= 0) {//抢购尚未开始，接口按钮关闭
+            let hours = Math.floor(diffTime / (1000 * 60 * 60));
+            diffTime = diffTime - hours * 3600000;
+            let minute = Math.floor(diffTime / (1000 * 60));
+            diffTime = diffTime - minute * 60000;
+            let second = Math.floor(diffTime / 1000);
+            timespan.innerHTML = `${addZero(hours)}:${addZero(minute)}:${addZero(second)}`;
+            return;
+        }
+        $("#seckillButton").attr("disabled", false);
+        timespan.innerHTML = '抢购已开始';
+    };
+    setInterval(computeTime,1000);
+
+    $(document).ready(function (){
+        $("#seckillButton").click(function (){
+            var username = $("#orderUser").val();
+            var stockId = $("#stockId").val();
+            $.ajax({
+                url: "/seckill",
+                type: "post",
+                data: $("#seckillForm").serialize(),
+                cache: false,
+                success: function (data){
+                    if (data.result == "success"){
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn: ["确定", "取消"]},function () {
+                                window.location.href = "/order_detail/" + username + "/" + stockId;
+                            }
+                            // 取消的回调
+                            // function () {
+                            //     layer.closeAll();
+                            // }
+                        );
+                    }
+                    if (data.result == "failure"){
+                        layer.msg("每一位用户只能秒杀一次该商品");
+                        $("#seckillButton").attr("disabled", true);
+                    }
+                },
+                error: function () {
+                    layer.msg("客户端请求有误");
+                }
+            })
+        })
+    })
+</script>
+
+</html>

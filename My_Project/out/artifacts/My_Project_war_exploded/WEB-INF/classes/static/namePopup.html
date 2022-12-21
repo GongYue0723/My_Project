@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>欢迎</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            function parseUrl() {
+                var url = location.href;
+                encodeURI(url);
+                var i = url.indexOf('?');
+                if (i == -1) return;
+                var querystr = url.substr(i + 1);
+                var arr1 = querystr.split('&');
+                var arr2 = new Object();
+                for (i in arr1) {
+                    var ta = arr1[i].split('=');
+                    arr2[ta[0]] = ta[1];
+                }
+                return arr2;
+            }
+
+            var v = parseUrl();//解析所有参数
+            // alert(v['name']);//就是你要的结果
+            var name = decodeURI(v['name']);
+            document.getElementById('search').innerHTML = '欢迎您！' + name;
+
+            $("#reset").click(function (){
+                var url = 'update&password.html?name=' + name;
+                window.location.href = url;
+            });
+        });
+
+    </script>
+    <style>
+        #reset{
+            text-align: center;
+            color: darkblue;
+            background-color: rgb(225,225,0,60%);
+        }
+        body{
+            background-image: url(/You-must-be-happy.jpeg);
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body>
+<h1 id="search" style="color: skyblue; background-color: rgb(225,225,225,60%); text-align: center; margin: 250px 150px"></h1>
+<p  id="reset">修改密码</p>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/layer/layer.js"></script>
+    <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+
+    <title>请登录</title>
+    <style>
+        #account:focus {
+            border-style:solid;
+            border-color: #03a9f4;
+            box-shadow: 0 0 15px #03a9f4;
+        }
+        #pass:focus {
+            border-style:solid;
+            border-color: #03a9f4;
+            box-shadow: 0 0 15px #03a9f4;
+        }
+        #loginClass {
+            text-align: center;
+            background-color:whitesmoke;
+            width: 330px;
+            height: 250px;
+            margin-left: 12.5cm;
+            margin-top: 5cm;
+            position: fixed;
+            border: 1px black dashed;
+        }
+        /*@font-face {*
+        /*    font-family: 'iconfont';*/
+        /*    src: url('./fonts/iconfont.woff2?t=1639129991642') format('woff2'),*/
+        /*    url('./fonts/iconfont.woff?t=1639129991642') format('woff'),*/
+        /*    url('./fonts/iconfont.ttf?t=1639129991642') format('truetype');*/
+        /*}*/
+        @font-face {
+            font-family: 'iconfont';  /* Project id 3004418 */
+            src: url('//at.alicdn.com/t/font_3004418_qtok2tod98p.woff2?t=1639130929282') format('woff2'),
+            url('//at.alicdn.com/t/font_3004418_qtok2tod98p.woff?t=1639130929282') format('woff'),
+            url('//at.alicdn.com/t/font_3004418_qtok2tod98p.ttf?t=1639130929282') format('truetype');
+        }
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: 16px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+    </style>
+    <script type="text/javascript">
+        function checkUser(){
+            $.ajax({
+                url: "/login" ,//控制器url
+                type: "post",//方法类型
+                data: $('#loginClass').serialize(),//直接将整个表格序列化提交
+                dataType: "JSON",//服务器返回的数据类型
+                cache: false,
+                success:function (data) {//data为前端请求后台，由后台controller返回的值s
+                    //直接检查服务器(controller)所返回的Map的并使用对应key(code)检查其中包含的逻辑
+                    if (data.code == "1") {
+                        layer.msg(data.msg);
+                        var username = $("#account").val();
+                        window.location.href = "/good_list?username=" + username;
+                    }
+                    else{
+                        layer.msg(data.msg);
+                    }
+                    /* var jsonObj = JSON.parse( JSON.stringify(data) );
+                     var art = jsonObj.msg;
+
+                     var html = '<h2>'+art.title+'</h2>';
+                     html += '<h3>'+art.user_name+'</h3>';
+                     html += art.content;
+                     $("blogDetail").append(html);*/
+                    console.log(data);
+                },
+                //此方法只有在controller层返回时出现错误时会进入
+                error: function () {
+                    layer.msg("加载失败");
+                    window.location.href = "../static/error.html";
+                }
+            });
+            }
+            $(document).ready(function (){
+                $("#account").blur(function (){
+                    var name = $("#account").val();
+                    $.ajax({
+                        url: "/check",
+                        type: "post",
+                        data: $('#account').serialize(),
+                        cache: false,
+                        success:function (data){
+                            if (data.code == "0" && name != ""){
+                                $("#accountInfo").html("该用户名可用");
+                                $("#accountInfo").css("color", "green");
+                                $("#registryButton").removeAttr('disabled');
+                                $('#accountInfo').focus(function () { $(this).next().text(''); })
+                            }
+                            if (data.code == "1" && name != "") {
+                                $("#accountInfo").html("该用户名已被注册");
+                                $("#accountInfo").css("color", "red");
+                                $('#registryButton').attr("disabled","disabled");
+                                $('#pass').focus(function () { $(this).next().text(''); })
+                            }
+                        },
+                        error:function (data){
+                            alert("怎么回事呢？");
+                        }
+                    });
+                });
+                $('#registryButton').click(function () { let $name=$('#account'); let $pwd=$('#pass');
+                    // 按钮点击后检查输入框是否为空，为空则找到span便签添加提示
+                    if ($name.val().length===0) {
+                        $name.next().text('用户名不能为空').css("color", "red");
+                        $('#registryButton').attr("disabled","disabled");
+                    }
+                    if($pwd.val().length===0) {
+                        $pwd.next().text('密码不能为空').css("color", "red");
+                        $('#registryButton').attr("disabled","disabled");
+                    }
+                });
+                // 给输入框添加时间，获取焦点时,将span标签中的内容设置成空
+                $('#account').focus(function () { $(this).next().text(''); })
+                $('#pass').focus(function () { $(this).next().text(''); })
+            });
+        //按钮绑定点击事件
+    </script>
+    </head>
+<!--<body style="background-color: aquamarine">-->
+    <!-- post方法将会把入参发送controller层 -->
+        <form id="loginClass" method="post">
+<!--        ng-app:定义angularJS页面的作用模块-->
+<!--        ng-controller:定义angularJS页面控制的区域-->
+            <h1 align="center">请登录</h1>
+    <!--        name 属性规定 input 元素的名称-->
+    <!--        name 属性用于对提交到服务器后的表单数据进行标识，或者在客户端通过 JavaScript 引用表单数据-->
+            <div>
+                <span class="iconfont">&#xe607;</span>
+                <input type="text" name="accountId" class="info" id="account" placeholder="请输入账号" required="true">
+                <span id="accountInfo"></span><span></span>
+            </div>
+            <div>
+                <span class="iconfont">&#xe77f;</span>
+                <input type="password" name="password" class="info" id="pass" placeholder="请输入密码" required="required" maxlength="16" minlength="6">
+                <span></span>
+            </div>
+            <div>
+                <input class="btn btn-primary btn-block" type="button" id="loginButton" onclick="checkUser()" value="登录">
+                <input class="btn btn-primary btn-block" type="submit" id="registryButton" formaction="http://localhost:8080/registry" value="注册" disabled="disabled">
+            </div>
+            <div>
+                <a href="#">忘记密码？</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
